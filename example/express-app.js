@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Georges-Etienne Legendre <legege@legege.com>
+// Copyright (C) 2020, Jeroen K.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the
@@ -19,21 +19,53 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var MjpegProxy = require('../mjpeg-proxy').MjpegProxy;
+var MjpegProxy = require('../node-mjpeg-proxy');
 var express = require('express');
 var app = express();
 
-var HTTP_PORT = 8080;
+app.listen(8080);
 
-var cam1 = "http://admin:admin@192.168.124.54/cgi/mjpg/mjpg.cgi";
-var cam2 = "http://admin:@192.168.124.32/videostream.cgi";
 
-app.set("view options", {layout: false});
-app.use(express.static(__dirname + '/public'));
 
-app.get('/index1.jpg', new MjpegProxy(cam1).proxyRequest);
-app.get('/index2.jpg', new MjpegProxy(cam2).proxyRequest);
+// Create Proxy 
+var proxy1 = new MjpegProxy('http://192.168.1.17:8082/ptz.jpg');
 
-app.listen(HTTP_PORT);
+// Bind proxy to the webserver
+app.get('/ptz.jpg', proxy1.proxyRequest);
 
-console.log("Listening on port " + HTTP_PORT);
+// Events
+proxy1.on('userconnect', function(data){
+	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
+});
+
+proxy1.on('userdisconnect', function(data){
+	console.log("disconnect - " + data);	// [Console output] disconnect - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
+});
+
+proxy1.on('error', function(data){
+	console.log("msg: " + data.msg);		// [Console output] msg: Error: connect ECONNREFUSED 192.168.1.17:8082
+	console.log("url: " + data.url);		// [Console output] url: - http://192.168.1.17:8082/ptz.jpg
+});
+
+
+
+// Create Proxy 
+var proxy2 = new MjpegProxy('http://192.168.1.17:8082/bullet.jpg');
+
+// Bind proxy to the webserver
+app.get('/bullet.jpg', proxy2.proxyRequest);
+
+// Events
+proxy2.on('userconnect', function(data){
+	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/bullet.jpg , users: 1
+});
+
+proxy2.on('userdisconnect', function(data){
+	console.log("disconnect - " + data);	// [Console output] disconnect - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/bullet.jpg
+});
+
+proxy2.on('error', function(data){
+	console.log("msg: " + data.msg);		// [Console output] msg: Error: connect ECONNREFUSED 192.168.1.17:8082
+	console.log("url: " + data.url);		// [Console output] url: - http://192.168.1.17:8082/bullet.jpg
+});
+
