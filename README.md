@@ -39,10 +39,18 @@ var proxy1 = new MjpegProxy('http://192.168.1.17:8082/ptz.jpg');
 app.get('/ptz.jpg', proxy1.proxyRequest);
 
 // Events
-proxy1.on('userconnect', function(data){
-	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
+proxy1.on('streamstart', function(data){
+	console.log("streamstart - " + data);		// [Console output] streamstart - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
 });
 
+proxy1.on('streamstop', function(data){
+	console.log("streamstop - " + data);	// [Console output] streamstop - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
+});
+
+proxy1.on('error', function(data){
+	console.log("msg: " + data.msg);		// [Console output] msg: Error: connect ECONNREFUSED 192.168.1.17:8082
+	console.log("url: " + data.url);		// [Console output] url: - http://192.168.1.17:8082/ptz.jpg
+});
 
 ```
 
@@ -68,12 +76,12 @@ var proxy1 = new MjpegProxy('http://192.168.1.17:8082/ptz.jpg');
 app.get('/ptz.jpg', proxy1.proxyRequest);
 
 // Events
-proxy1.on('userconnect', function(data){
-	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
+proxy1.on('streamstart', function(data){
+	console.log("streamstart - " + data);		// [Console output] streamstart - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
 });
 
-proxy1.on('userdisconnect', function(data){
-	console.log("disconnect - " + data);	// [Console output] disconnect - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
+proxy1.on('streamstop', function(data){
+	console.log("streamstop - " + data);	// [Console output] streamstop - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
 });
 
 proxy1.on('error', function(data){
