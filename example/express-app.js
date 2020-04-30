@@ -19,7 +19,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var MjpegProxy = require('../node-mjpeg-proxy');
+var MjpegProxy = require('node-mjpeg-proxy');
 var express = require('express');
 var app = express();
 
@@ -34,12 +34,12 @@ var proxy1 = new MjpegProxy('http://192.168.1.17:8082/ptz.jpg');
 app.get('/ptz.jpg', proxy1.proxyRequest);
 
 // Events
-proxy1.on('userconnect', function(data){
-	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
+proxy1.on('streamstart', function(data){
+	console.log("streamstart - " + data);		// [Console output] streamstart - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
 });
 
-proxy1.on('userdisconnect', function(data){
-	console.log("disconnect - " + data);	// [Console output] disconnect - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
+proxy1.on('streamstop', function(data){
+	console.log("streamstop - " + data);	// [Console output] streamstop - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
 });
 
 proxy1.on('error', function(data){
@@ -56,16 +56,18 @@ var proxy2 = new MjpegProxy('http://192.168.1.17:8082/bullet.jpg');
 app.get('/bullet.jpg', proxy2.proxyRequest);
 
 // Events
-proxy2.on('userconnect', function(data){
-	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/bullet.jpg , users: 1
+proxy2.on('streamstart', function(data){
+	console.log("streamstart - " + data);		// [Console output] streamstart - [MjpegProxy] Started streaming http://192.168.1.17:8082/bullet.jpg , users: 1
 });
 
-proxy2.on('userdisconnect', function(data){
-	console.log("disconnect - " + data);	// [Console output] disconnect - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/bullet.jpg
+proxy2.on('streamstop', function(data){
+	console.log("streamstop - " + data);	// [Console output] streamstop - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/bullet.jpg
 });
 
 proxy2.on('error', function(data){
 	console.log("msg: " + data.msg);		// [Console output] msg: Error: connect ECONNREFUSED 192.168.1.17:8082
 	console.log("url: " + data.url);		// [Console output] url: - http://192.168.1.17:8082/bullet.jpg
 });
+
+
 
