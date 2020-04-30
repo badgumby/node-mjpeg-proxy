@@ -9,7 +9,7 @@ Installation
 From npm:
 
 ``` bash
-$ npm install mjpeg-proxy
+$ npm install node-mjpeg-proxy
 ```
 
 From source:
@@ -26,15 +26,27 @@ Example
 ### Example Usage
 
 ``` js
-var MjpegProxy = require('mjpeg-proxy').MjpegProxy;
+var MjpegProxy = require('node-mjpeg-proxy');
 var express = require('express');
 var app = express();
 
-app.get('/index1.jpg', new MjpegProxy('http://admin:admin@192.168.1.109/cgi/mjpg/mjpg.cgi').proxyRequest);
 app.listen(8080);
+
+// Create Proxy 
+var proxy1 = new MjpegProxy('http://192.168.1.17:8082/ptz.jpg');
+
+// Bind proxy to the webserver
+app.get('/ptz.jpg', proxy1.proxyRequest);
+
+// Events
+proxy1.on('userconnect', function(data){
+	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
+});
+
+
 ```
 
-Here, it will create a proxy to the source video feed (`http://admin:admin@192.168.1.109/cgi/mjpg/mjpg.cgi`). You can now access the feed at `http://localhost:8080/index1.jpg`.
+Here, it will create a proxy to the source video feed (`http://192.168.1.17:8082/ptz.jpg`). You can now access the feed at `http://localhost:8080/ptz.jpg`.
 
 API
 ---
@@ -46,6 +58,30 @@ var mjpegProxy = new MjpegProxy(mjpegUrl);
 ``` 
 
 Returns: a `MjpegProxy` instance for the MJPEG stream at `mjpegUrl` URL.
+
+#### Events:
+``` js
+// Create Proxy 
+var proxy1 = new MjpegProxy('http://192.168.1.17:8082/ptz.jpg');
+
+// Bind proxy to the webserver
+app.get('/ptz.jpg', proxy1.proxyRequest);
+
+// Events
+proxy1.on('userconnect', function(data){
+	console.log("connect - " + data);		// [Console output] connect - [MjpegProxy] Started streaming http://192.168.1.17:8082/ptz.jpg , users: 1
+});
+
+proxy1.on('userdisconnect', function(data){
+	console.log("disconnect - " + data);	// [Console output] disconnect - [MjpegProxy] 0 Users, Stopping stream http://192.168.1.17:8082/ptz.jpg
+});
+
+proxy1.on('error', function(data){
+	console.log("msg: " + data.msg);		// [Console output] msg: Error: connect ECONNREFUSED 192.168.1.17:8082
+	console.log("url: " + data.url);		// [Console output] url: - http://192.168.1.17:8082/ptz.jpg
+});
+``` 
+
 
 Credits
 -------
