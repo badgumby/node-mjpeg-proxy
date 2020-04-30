@@ -19,7 +19,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var MjpegProxy = require('node-mjpeg-proxy');
+var MjpegProxy = require('../node-mjpeg-proxy');
 var express = require('express');
 var app = express();
 
