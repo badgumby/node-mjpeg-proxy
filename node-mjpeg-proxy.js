@@ -64,7 +64,7 @@ function MjpegProxy(mjpegUrl) {
       return;
     }
 
-    self.emit("userconnect", "[MjpegProxy] Started streaming " + mjpegUrl + " , users: " + (self.audienceResponses.length + 1));
+    self.emit("streamstart", "[MjpegProxy] Started streaming " + mjpegUrl + " , users: " + (self.audienceResponses.length + 1));
 
     // There is already another client consuming the MJPEG response
     if (self.mjpegRequest !== null) {
@@ -122,7 +122,7 @@ function MjpegProxy(mjpegUrl) {
             var res = self.audienceResponses[i];
             res.end();
           }
-          self.emit("userdisconnect", "[MjpegProxy] 0 Users, Stopping stream " + mjpegUrl);
+          self.emit("streamstop", "[MjpegProxy] 0 Users, Stopping stream " + mjpegUrl);
           
         });
         mjpegResponse.on('close', function () {
