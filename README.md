@@ -1,7 +1,7 @@
 node-mjpeg-proxy
 ================
 
-A node.js module to proxy MJPEG requests. Supports multiple client consuming a single stream. Fixes an iOS 6 issue with some MJPEG steams. Also removed the buffertools dependency and use the node buffer instead.
+A node.js module to proxy MJPEG requests. Supports multiple client consuming a single stream. Fixes an iOS 6 issue with some MJPEG steams. **This is an improved version of *mjpeg-proxy*, this v2 does not use the buffertools dependency and uses the node buffer instead. It also supports .on() events**
 
 Installation
 ------------
