@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Georges-Etienne Legendre <legege@legege.com>
+// Copyright (C) 2020, Jeroen K.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the
@@ -19,8 +19,12 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 var url = require('url');
 var http = require('http');
+var events = require('events');
+var util = require('util');
+
 
 function extractBoundary(contentType) {
   contentType = contentType.replace(/\s+/g, '');
@@ -36,13 +40,18 @@ function extractBoundary(contentType) {
   return contentType.substring(startIndex + 9, endIndex).replace(/"/gi,'').replace(/^\-\-/gi, '');
 }
 
-var MjpegProxy = exports.MjpegProxy = function(mjpegUrl) {
+
+
+// MjpegProxy Module
+function MjpegProxy(mjpegUrl) {
+  events.EventEmitter.call(this);
+  
   var self = this;
 
   if (!mjpegUrl) throw new Error('Please provide a source MJPEG URL');
 
   self.mjpegOptions = url.parse(mjpegUrl);
-
+  
   self.audienceResponses = [];
   self.newAudienceResponses = [];
 
@@ -55,8 +64,11 @@ var MjpegProxy = exports.MjpegProxy = function(mjpegUrl) {
       return;
     }
 
+    self.emit("userconnect", "[MjpegProxy] Started streaming " + mjpegUrl + " , users: " + (self.audienceResponses.length + 1));
+
     // There is already another client consuming the MJPEG response
     if (self.mjpegRequest !== null) {
+      
       self._newClient(req, res);
     } else {
       // Send source MJPEG request
@@ -110,6 +122,8 @@ var MjpegProxy = exports.MjpegProxy = function(mjpegUrl) {
             var res = self.audienceResponses[i];
             res.end();
           }
+          self.emit("userdisconnect", "[MjpegProxy] 0 Users, Stopping stream " + mjpegUrl);
+          
         });
         mjpegResponse.on('close', function () {
           // console.log("...close");
@@ -117,7 +131,8 @@ var MjpegProxy = exports.MjpegProxy = function(mjpegUrl) {
       });
 
       self.mjpegRequest.on('error', function(e) {
-        console.error('problem with request: ', e);
+        //console.error('problem with request: ', e);
+        self.emit("error", {msg: e, url: mjpegUrl});
       });
       self.mjpegRequest.end();
     }
@@ -144,8 +159,19 @@ var MjpegProxy = exports.MjpegProxy = function(mjpegUrl) {
 
       if (self.audienceResponses.length == 0) {
         self.mjpegRequest = null;
-        self.globalMjpegResponse.destroy();
+        try {
+          self.globalMjpegResponse.destroy();
+        } catch(e){
+          console.log(e);
+        }
       }
     });
   }
 }
+
+
+
+util.inherits(MjpegProxy, events.EventEmitter);
+
+
+module.exports =  MjpegProxy;
